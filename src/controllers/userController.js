@@ -57,6 +57,10 @@ const updateUserById = async (
 ) => {
   try {
     const {
+      firstName,
+      lastName,
+      email,
+      password,
       role,
       isActive
     } = req.body
@@ -65,6 +69,10 @@ const updateUserById = async (
       req.params.id,
       req.user,
       {
+        firstName,
+        lastName,
+        email,
+        password,
         role,
         isActive
       }

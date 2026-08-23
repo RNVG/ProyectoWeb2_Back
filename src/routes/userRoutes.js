@@ -30,30 +30,75 @@ router.get(
   getUser
 )
 
+const userUpdateValidators = [
+  checkExact(
+    [
+      body("firstName")
+        .optional()
+        .trim()
+        .notEmpty()
+        .withMessage(
+          "El nombre no puede estar vacío"
+        ),
+
+      body("lastName")
+        .optional()
+        .trim()
+        .notEmpty()
+        .withMessage(
+          "El apellido no puede estar vacío"
+        ),
+
+      body("email")
+        .optional()
+        .trim()
+        .notEmpty()
+        .withMessage("El correo no puede estar vacío")
+        .isEmail()
+        .withMessage("El correo no es válido"),
+
+      body("password")
+        .optional()
+        .isString()
+        .withMessage("La contraseña no es válida")
+        .isLength({
+          min: 8
+        })
+        .withMessage(
+          "La contraseña debe tener al menos 8 caracteres"
+        ),
+
+      body("role")
+        .optional()
+        .isIn(["admin", "organizer", "user"])
+        .withMessage(
+          "El rol debe ser admin, organizer o user"
+        ),
+
+      body("isActive")
+        .optional()
+        .isBoolean()
+        .withMessage(
+          "isActive debe ser un valor booleano"
+        )
+    ],
+    {
+      message:
+        "No se permiten campos distintos de firstName, lastName, email, password, role e isActive"
+    }
+  )
+]
+
 router.put(
   "/:id",
-  [
-    checkExact(
-      [
-        body("role")
-          .optional()
-          .isIn(["admin", "organizer", "user"])
-          .withMessage(
-            "El rol debe ser admin, organizer o user"
-          ),
+  userUpdateValidators,
+  validateRequest,
+  updateUserById
+)
 
-        body("isActive")
-          .optional()
-          .isBoolean()
-          .withMessage(
-            "isActive debe ser un valor booleano"
-          )
-      ],
-      {
-        message: "No se permiten campos distintos de role e isActive"
-      }
-    )
-  ],
+router.patch(
+  "/:id",
+  userUpdateValidators,
   validateRequest,
   updateUserById
 )

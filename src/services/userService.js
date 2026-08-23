@@ -87,6 +87,10 @@ const updateUser = async (
   }
 
   const {
+    firstName,
+    lastName,
+    email,
+    password,
     role,
     isActive
   } = updates
@@ -118,6 +122,40 @@ const updateUser = async (
         400
       )
     }
+  }
+
+  if (email !== undefined) {
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase()
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+      _id: {
+        $ne: targetUserId
+      }
+    })
+
+    if (existingUser) {
+      throw new AppError(
+        "El correo electrónico ya está registrado por otro usuario",
+        409
+      )
+    }
+
+    user.email = normalizedEmail
+  }
+
+  if (firstName !== undefined) {
+    user.firstName = firstName
+  }
+
+  if (lastName !== undefined) {
+    user.lastName = lastName
+  }
+
+  if (password !== undefined) {
+    user.password = password
   }
 
   if (role !== undefined) {
