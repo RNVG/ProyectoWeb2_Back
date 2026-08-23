@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import helmet from "helmet"
 import authRoutes from "./routes/authRoutes.js"
+import userRoutes from "./routes/userRoutes.js"
 import notFound from "./middleware/notFoundMiddleware.js"
 import errorHandler from "./middleware/errorMiddleware.js"
 
@@ -39,6 +40,11 @@ app.get("/api/health", (req, res) => {
 app.use(
   "/api/auth",
   authRoutes
+)
+
+app.use(
+  "/api/users",
+  userRoutes
 )
 
 app.use(notFound)
