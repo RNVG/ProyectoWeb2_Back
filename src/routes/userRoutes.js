@@ -53,14 +53,20 @@ const userUpdateValidators = [
         .optional()
         .trim()
         .notEmpty()
-        .withMessage("El correo no puede estar vacío")
+        .withMessage(
+          "El correo no puede estar vacío"
+        )
         .isEmail()
-        .withMessage("El correo no es válido"),
+        .withMessage(
+          "El correo no es válido"
+        ),
 
       body("password")
         .optional()
         .isString()
-        .withMessage("La contraseña no es válida")
+        .withMessage(
+          "La contraseña no es válida"
+        )
         .isLength({
           min: 8
         })
@@ -70,7 +76,11 @@ const userUpdateValidators = [
 
       body("role")
         .optional()
-        .isIn(["admin", "organizer", "user"])
+        .isIn([
+          "admin",
+          "organizer",
+          "user"
+        ])
         .withMessage(
           "El rol debe ser admin, organizer o user"
         ),

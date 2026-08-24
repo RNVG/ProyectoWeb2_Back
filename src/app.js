@@ -1,11 +1,21 @@
 import express from "express"
+
 import cors from "cors"
+
 import helmet from "helmet"
+
 import authRoutes from "./routes/authRoutes.js"
+
+import registrationRoutes from "./routes/registrationRoutes.js"
+
 import userRoutes from "./routes/userRoutes.js"
+
 import categoryRoutes from "./routes/categoryRoutes.js"
+
 import eventRoutes from "./routes/eventRoutes.js"
+
 import notFound from "./middleware/notFoundMiddleware.js"
+
 import errorHandler from "./middleware/errorMiddleware.js"
 
 const app = express()
@@ -21,7 +31,7 @@ app.use(
 
 app.use(
   express.json({
-    limit: "1mb"
+    limit: "4mb"
   })
 )
 
@@ -44,6 +54,14 @@ app.use(
   authRoutes
 )
 
+/*
+  Registrations va antes de Users y Events
+*/
+app.use(
+  "/api",
+  registrationRoutes
+)
+
 app.use(
   "/api/users",
   userRoutes
@@ -60,6 +78,7 @@ app.use(
 )
 
 app.use(notFound)
+
 app.use(errorHandler)
 
 export default app
