@@ -202,6 +202,13 @@ const updateEvent = async (
     isActive
   } = updates
 
+  if (isActive !== undefined && !isAdmin) {
+    throw new AppError(
+      "Solo un administrador puede activar o desactivar un evento",
+      403
+    )
+  }
+
   if (category !== undefined) {
     await assertCategoryExists(category)
     event.category = category

@@ -118,7 +118,8 @@ const updateEventById = async (
       location,
       capacity,
       imageUrl,
-      status
+      status,
+      isActive
     } = req.body
 
     const event = await updateEvent(
@@ -134,7 +135,8 @@ const updateEventById = async (
         location,
         capacity,
         imageUrl,
-        status
+        status,
+        isActive
       }
     )
 

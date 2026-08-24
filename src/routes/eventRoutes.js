@@ -213,16 +213,31 @@ const eventUpdateValidators = [
         .isIn(["draft", "published", "cancelled", "completed"])
         .withMessage(
           "El estado debe ser draft, published, cancelled o completed"
+        ),
+
+      body("isActive")
+        .optional()
+        .isBoolean()
+        .withMessage(
+          "isActive debe ser un valor booleano"
         )
     ],
     {
       message:
-        "No se permiten campos distintos de title, description, category, startDate, endDate, modality, location, capacity, imageUrl y status"
+        "No se permiten campos distintos de title, description, category, startDate, endDate, modality, location, capacity, imageUrl, status e isActive"
     }
   )
 ]
 
 router.put(
+  "/:id",
+  authorizeRoles("admin", "organizer"),
+  eventUpdateValidators,
+  validateRequest,
+  updateEventById
+)
+
+router.patch(
   "/:id",
   authorizeRoles("admin", "organizer"),
   eventUpdateValidators,
