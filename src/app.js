@@ -4,6 +4,7 @@ import helmet from "helmet"
 import authRoutes from "./routes/authRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import categoryRoutes from "./routes/categoryRoutes.js"
+import eventRoutes from "./routes/eventRoutes.js"
 import notFound from "./middleware/notFoundMiddleware.js"
 import errorHandler from "./middleware/errorMiddleware.js"
 
@@ -51,6 +52,11 @@ app.use(
 app.use(
   "/api/categories",
   categoryRoutes
+)
+
+app.use(
+  "/api/events",
+  eventRoutes
 )
 
 app.use(notFound)
