@@ -8,6 +8,8 @@ import authRoutes from "./routes/authRoutes.js"
 
 import registrationRoutes from "./routes/registrationRoutes.js"
 
+import favoriteRoutes from "./routes/favoriteRoutes.js"
+
 import userRoutes from "./routes/userRoutes.js"
 
 import categoryRoutes from "./routes/categoryRoutes.js"
@@ -55,11 +57,18 @@ app.use(
 )
 
 /*
-  Registrations va antes de Users y Events
+  Registrations y Favorites deben ir antes
+  de Users y Events.
 */
+
 app.use(
   "/api",
   registrationRoutes
+)
+
+app.use(
+  "/api",
+  favoriteRoutes
 )
 
 app.use(
