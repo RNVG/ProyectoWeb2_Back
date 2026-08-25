@@ -10,6 +10,8 @@ import registrationRoutes from "./routes/registrationRoutes.js"
 
 import favoriteRoutes from "./routes/favoriteRoutes.js"
 
+import notificationRoutes from "./routes/notificationRoutes.js"
+
 import userRoutes from "./routes/userRoutes.js"
 
 import categoryRoutes from "./routes/categoryRoutes.js"
@@ -57,8 +59,7 @@ app.use(
 )
 
 /*
-  Registrations y Favorites deben ir antes
-  de Users y Events.
+  Estas rutas deben ir antes de Users y Events
 */
 
 app.use(
@@ -69,6 +70,11 @@ app.use(
 app.use(
   "/api",
   favoriteRoutes
+)
+
+app.use(
+  "/api",
+  notificationRoutes
 )
 
 app.use(
