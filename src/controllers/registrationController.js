@@ -80,3 +80,36 @@ export {
   cancelEventRegistration,
   getMyRegistrations
 }
+
+import {
+  getEventRegistrations as getRegistrationsForEvent
+} from "../services/registrationService.js"
+
+const getEventRegistrations = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const registrations =
+      await getRegistrationsForEvent(
+        req.params.id,
+        req.user,
+        req.query.status
+      )
+
+    res.status(200).json({
+      success: true,
+      message: "Participantes obtenidos correctamente",
+      data: {
+        registrations
+      }
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export {
+  getEventRegistrations
+}

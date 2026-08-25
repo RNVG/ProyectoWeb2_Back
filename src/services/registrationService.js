@@ -164,3 +164,56 @@ export {
   cancelRegistration,
   getUserRegistrations
 }
+
+const getEventRegistrations = async (
+  eventId,
+  requestingUser,
+  statusFilter
+) => {
+  const event = await Event.findById(eventId)
+
+  if (!event) {
+    throw new AppError(
+      "El evento no existe",
+      404
+    )
+  }
+
+  if (
+    requestingUser.role === "organizer" &&
+    event.organizer.toString() !==
+      requestingUser._id.toString()
+  ) {
+    throw new AppError(
+      "No podés consultar los participantes de actividades de otro organizador",
+      403
+    )
+  }
+
+  const query = {
+    event: eventId
+  }
+
+  if (statusFilter) {
+    query.status = statusFilter
+  }
+
+  const registrations = await Registration.find(
+    query
+  )
+    .populate({
+      path: "user",
+      select: "firstName lastName email"
+    })
+    .sort({
+      registeredAt: -1
+    })
+
+  return registrations.map(
+    formatRegistration
+  )
+}
+
+export {
+  getEventRegistrations
+}

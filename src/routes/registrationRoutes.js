@@ -26,3 +26,15 @@ router.get(
 )
 
 export default router
+
+import {
+  getEventRegistrations
+} from "../controllers/registrationController.js"
+
+import authorizeRoles from "../middleware/roleMiddleware.js"
+
+router.get(
+  "/events/:id/registrations",
+  authorizeRoles("admin", "organizer"),
+  getEventRegistrations
+)
