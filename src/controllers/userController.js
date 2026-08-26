@@ -2,7 +2,8 @@ import {
   getUsers,
   getUserById,
   updateUser,
-  deactivateUser
+  deactivateUser,
+  getAdminStats
 } from "../services/userService.js"
 
 const listUsers = async (
@@ -113,9 +114,28 @@ const deleteUserById = async (
   }
 }
 
+const getStats = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const stats = await getAdminStats()
+
+    res.status(200).json({
+      success: true,
+      message: "Estadísticas obtenidas correctamente",
+      data: stats
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export {
   listUsers,
   getUser,
   updateUserById,
-  deleteUserById
+  deleteUserById,
+  getStats
 }

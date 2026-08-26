@@ -1,5 +1,6 @@
 import Event from "../models/Event.js"
 import Category from "../models/Category.js"
+import Registration from "../models/Registration.js"
 import AppError from "../utils/AppError.js"
 
 const formatEvent = (event) => {
@@ -86,27 +87,167 @@ const createEvent = async (
   return formatEvent(event)
 }
 
+const escapeRegExp = (text) => {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+const buildVisibilityAndFilterConditions = (
+  requestingUser,
+  mine,
+  {
+    category,
+    date,
+    location,
+    organizer,
+    search
+  }
+) => {
+  const conditions = []
+
+  if (mine) {
+    conditions.push({
+      organizer: requestingUser._id
+    })
+  } else if (requestingUser.role !== "admin") {
+    conditions.push({
+      status: "published",
+      isActive: true
+    })
+  }
+
+  if (category) {
+    conditions.push({
+      category
+    })
+  }
+
+  if (date) {
+    conditions.push({
+      startDate: {
+        $gte: new Date(date)
+      }
+    })
+  }
+
+  if (location) {
+    const locationRegex = new RegExp(
+      escapeRegExp(location),
+      "i"
+    )
+
+    conditions.push({
+      $or: [
+        { "location.name": locationRegex },
+        { "location.address": locationRegex }
+      ]
+    })
+  }
+
+  if (organizer) {
+    conditions.push({
+      organizer
+    })
+  }
+
+  if (search) {
+    const searchRegex = new RegExp(
+      escapeRegExp(search),
+      "i"
+    )
+
+    conditions.push({
+      $or: [
+        { title: searchRegex },
+        { description: searchRegex }
+      ]
+    })
+  }
+
+  return conditions
+}
+
+/*
+  Enfoque para "available": una sola consulta trae los eventos que ya
+  cumplen el resto de los filtros (solo _id y capacity), y una única
+  agregación sobre Registration cuenta las inscripciones "registered"
+  agrupadas por evento. Es O(1) queries respecto a la cantidad de
+  eventos (no hace un countDocuments por evento en un loop).
+*/
+const getAvailableEventIds = async (filter) => {
+  const candidateEvents = await Event.find(filter).select(
+    "_id capacity"
+  )
+
+  if (candidateEvents.length === 0) {
+    return []
+  }
+
+  const candidateEventIds = candidateEvents.map(
+    (event) => event._id
+  )
+
+  const registrationCounts = await Registration.aggregate([
+    {
+      $match: {
+        event: { $in: candidateEventIds },
+        status: "registered"
+      }
+    },
+    {
+      $group: {
+        _id: "$event",
+        count: { $sum: 1 }
+      }
+    }
+  ])
+
+  const countByEventId = new Map(
+    registrationCounts.map((entry) => [
+      entry._id.toString(),
+      entry.count
+    ])
+  )
+
+  return candidateEvents
+    .filter((event) => {
+      const registeredCount =
+        countByEventId.get(event._id.toString()) || 0
+
+      return registeredCount < event.capacity
+    })
+    .map((event) => event._id)
+}
+
 const getEvents = async (
   requestingUser,
   page,
   limit,
-  mine
+  mine,
+  queryFilters = {}
 ) => {
   const currentPage = page > 0 ? page : 1
   const pageSize = limit > 0 ? limit : 20
 
-  let filter = {}
+  const conditions = buildVisibilityAndFilterConditions(
+    requestingUser,
+    mine,
+    queryFilters
+  )
 
-  if (mine) {
-    filter = {
-      organizer: requestingUser._id
-    }
-  } else if (requestingUser.role !== "admin") {
-    filter = {
-      status: "published",
-      isActive: true
-    }
+  if (queryFilters.available === true) {
+    const baseFilter =
+      conditions.length > 0 ? { $and: conditions } : {}
+
+    const availableEventIds = await getAvailableEventIds(
+      baseFilter
+    )
+
+    conditions.push({
+      _id: { $in: availableEventIds }
+    })
   }
+
+  const filter = conditions.length > 0 ? { $and: conditions } : {}
 
   const [
     events,

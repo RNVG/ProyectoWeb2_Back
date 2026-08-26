@@ -1,4 +1,6 @@
 import User from "../models/User.js"
+import Event from "../models/Event.js"
+import Registration from "../models/Registration.js"
 import AppError from "../utils/AppError.js"
 
 const formatUser = (user) => {
@@ -184,9 +186,37 @@ const deactivateUser = async (
   )
 }
 
+const getAdminStats = async () => {
+  const [
+    totalUsers,
+    totalOrganizers,
+    totalEvents,
+    activeEvents,
+    completedEvents,
+    totalRegistrations
+  ] = await Promise.all([
+    User.countDocuments(),
+    User.countDocuments({ role: "organizer" }),
+    Event.countDocuments(),
+    Event.countDocuments({ status: "published" }),
+    Event.countDocuments({ status: "completed" }),
+    Registration.countDocuments()
+  ])
+
+  return {
+    totalUsers,
+    totalOrganizers,
+    totalEvents,
+    activeEvents,
+    completedEvents,
+    totalRegistrations
+  }
+}
+
 export {
   getUsers,
   getUserById,
   updateUser,
-  deactivateUser
+  deactivateUser,
+  getAdminStats
 }

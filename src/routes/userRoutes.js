@@ -7,7 +7,8 @@ import {
   listUsers,
   getUser,
   updateUserById,
-  deleteUserById
+  deleteUserById,
+  getStats
 } from "../controllers/userController.js"
 import protect from "../middleware/authMiddleware.js"
 import authorizeRoles from "../middleware/roleMiddleware.js"
@@ -23,6 +24,11 @@ router.use(
 router.get(
   "/",
   listUsers
+)
+
+router.get(
+  "/stats",
+  getStats
 )
 
 router.get(

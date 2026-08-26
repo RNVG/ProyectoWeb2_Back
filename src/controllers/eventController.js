@@ -16,11 +16,33 @@ const listEvents = async (
     const limit = parseInt(req.query.limit, 10)
     const mine = req.query.mine === "true"
 
+    const {
+      category,
+      date,
+      location,
+      organizer
+    } = req.query
+
+    const search = req.query.search || req.query.q
+
+    const available =
+      req.query.available === undefined
+        ? undefined
+        : req.query.available === "true"
+
     const result = await getEvents(
       req.user,
       page,
       limit,
-      mine
+      mine,
+      {
+        category,
+        date,
+        location,
+        organizer,
+        available,
+        search
+      }
     )
 
     res.status(200).json({
